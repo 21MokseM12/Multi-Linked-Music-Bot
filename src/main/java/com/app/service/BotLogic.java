@@ -1,18 +1,28 @@
 package com.app.service;
 
 import com.app.config.BotConfig;
+import com.app.util.JDBCConnectionManager;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 @Component
 public class BotLogic extends TelegramLongPollingBot {
     private final BotConfig config;
+    private Connection connection;
 
     public BotLogic(BotConfig config) {
         this.config = config;
+        try {
+            connection = JDBCConnectionManager.openConnection();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
