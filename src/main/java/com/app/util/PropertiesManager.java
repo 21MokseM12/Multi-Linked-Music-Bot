@@ -13,6 +13,8 @@ public class PropertiesManager {
         loadProperties();
     }
 
+    private PropertiesManager() {}
+
     private static void loadProperties() {
         try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream("application.properties")) {
             PROPERTIES.load(input);

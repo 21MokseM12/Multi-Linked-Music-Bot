@@ -1,6 +1,9 @@
 package com.app.util;
 
 public final class LinkValidator {
+
+    private LinkValidator() {}
+
     public static boolean isValidLink(String link) {
         if (link.isEmpty()) return false;
         else if (link.indexOf('/') == -1) return false;
