@@ -1,6 +1,6 @@
 package com.app.factories;
 
-import com.app.util.PropertiesManager;
+import com.app.utils.PropertiesManager;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
