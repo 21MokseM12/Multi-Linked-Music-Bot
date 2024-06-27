@@ -1,7 +1,7 @@
 package com.app.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import com.app.service.BotLogic;
+import com.app.services.BotLogic;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
