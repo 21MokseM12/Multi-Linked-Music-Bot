@@ -1,3 +1,5 @@
+package api;
+
 import com.app.enums.StreamServiceType;
 import com.app.exceptions.InvalidStreamServiceAPIException;
 import com.app.exceptions.TrackNotFoundException;
