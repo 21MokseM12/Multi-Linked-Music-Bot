@@ -17,7 +17,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.util.List;
 
 @Service
-public class BotLogic extends TelegramLongPollingBot {
+public class Bot extends TelegramLongPollingBot {
     @Autowired
     private DataBase dataBase;
     @Autowired
@@ -26,7 +26,7 @@ public class BotLogic extends TelegramLongPollingBot {
     private final BotConfig config;
     private boolean streamLinkAcceptFlag;
 
-    public BotLogic(BotConfig config) {
+    public Bot(BotConfig config) {
         this.config = config;
         this.streamLinkAcceptFlag = false;
     }
@@ -69,7 +69,7 @@ public class BotLogic extends TelegramLongPollingBot {
 //                        else listOfLinks = getLinksFromAPI(trackName);
 //
 //                        sendMessage(chatId, createResultMessage(listOfLinks));
-                    } catch (TrackNotFoundException | InvalidStreamServiceAPIException e) {
+                    } catch (TrackNotFoundException e) {
                         sendMessage(chatId, errorMessage);
                         e.printStackTrace();
                     }
@@ -104,11 +104,19 @@ public class BotLogic extends TelegramLongPollingBot {
      *      Возвращение названия песни и всех ссылок из БД
      */
 
-    private String getTrackNameByLink(String validLink, StreamServiceType linkType) throws TrackNotFoundException, InvalidStreamServiceAPIException {
-        return StreamServiceAPIFactory.get(linkType).getTrackName(validLink);
+    private String getTrackNameByLink(String validLink, StreamServiceType linkType) throws TrackNotFoundException {
+        try {
+            return StreamServiceAPIFactory.get(linkType).getTrackName(validLink);
+        } catch (InvalidStreamServiceAPIException e) {
+            throw new TrackNotFoundException(e);
+        }
     }
-    private String getArtistNameByLink(String validLink, StreamServiceType typeLink) throws TrackNotFoundException, InvalidStreamServiceAPIException {
-        return StreamServiceAPIFactory.get(typeLink).getArtistName(validLink);
+    private String getArtistNameByLink(String validLink, StreamServiceType typeLink) throws TrackNotFoundException {
+        try {
+            return StreamServiceAPIFactory.get(typeLink).getArtistName(validLink);
+        } catch (InvalidStreamServiceAPIException e) {
+            throw new TrackNotFoundException(e);
+        }
     }
 
     private boolean containsTrackIntoDataBase(String trackName) {
