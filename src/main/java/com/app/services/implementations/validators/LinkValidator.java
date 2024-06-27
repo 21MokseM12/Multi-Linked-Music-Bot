@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 @Service
 public final class LinkValidator implements Validator {
 
-    public LinkValidator() {}
-
     @Override
     public boolean isValid(String link) {
         String[] splitLink = link.replace("//", "/").split("/");
