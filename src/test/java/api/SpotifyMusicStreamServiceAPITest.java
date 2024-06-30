@@ -1,26 +1,26 @@
 package api;
 
 import com.app.enums.StreamServiceType;
-import com.app.exceptions.InvalidStreamServiceAPIException;
+import com.app.exceptions.StreamServiceAPINotFoundException;
 import com.app.exceptions.TrackNotFoundException;
 import com.app.factories.StreamServiceAPIFactory;
 import com.app.services.implementations.api.SpotifyMusicStreamServiceAPI;
+import com.app.services.interfaces.api.StreamServiceAPI;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
 public class SpotifyMusicStreamServiceAPITest {
+
+    private StreamServiceAPI spotify = new SpotifyMusicStreamServiceAPI();
+
     @Test
-    public void getTrackNameBySpotifyLink() throws InvalidStreamServiceAPIException, TrackNotFoundException {
-        Assertions.assertEquals("Патрон", StreamServiceAPIFactory
-                .get(StreamServiceType.SPOTIFY_MUSIC_LINK)
-                .getTrackName("https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB"));
+    public void getTrackNameBySpotifyLink() throws StreamServiceAPINotFoundException, TrackNotFoundException {
+        Assertions.assertEquals("Патрон", spotify.getTrackName("https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB"));
     }
 
     @Test
-    public void getArtistNameBySpotifyLink() throws InvalidStreamServiceAPIException, TrackNotFoundException {
-        Assertions.assertEquals("Miyagi & Andy Panda", StreamServiceAPIFactory
-                .get(StreamServiceType.SPOTIFY_MUSIC_LINK)
-                .getArtistName("https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB"));
+    public void getArtistNameBySpotifyLink() throws StreamServiceAPINotFoundException, TrackNotFoundException {
+        Assertions.assertEquals("Miyagi & Andy Panda", spotify.getArtistName("https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB"));
     }
 
     @Test
