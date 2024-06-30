@@ -11,6 +11,7 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Service
 public class BotInitializer {
+
     @Autowired
     Bot bot;
 

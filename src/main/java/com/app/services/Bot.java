@@ -1,8 +1,8 @@
 package com.app.services;
 
 import com.app.config.BotConfig;
+import com.app.enums.GetTrackLinksMethod;
 import com.app.enums.StreamServiceType;
-import com.app.exceptions.InvalidStreamServiceAPIException;
 import com.app.exceptions.TrackNotFoundException;
 import com.app.factories.StreamServiceAPIFactory;
 import com.app.services.interfaces.validators.Validator;
@@ -15,15 +15,25 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class Bot extends TelegramLongPollingBot {
+
     @Autowired
     private DataBase dataBase;
+
+    @Autowired
+    private StreamServiceAPIManager apiManager;
+
     @Autowired
     private Validator validator;
 
+    @Autowired
+    private StreamServiceAPIFactory streamServiceFactory;
+
     private final BotConfig config;
+
     private boolean streamLinkAcceptFlag;
 
     public Bot(BotConfig config) {
@@ -63,12 +73,10 @@ public class Bot extends TelegramLongPollingBot {
 
                         String trackName = getTrackNameByLink(message, linkType),
                         artistName = getArtistNameByLink(message, linkType);
-//                        List<String> listOfLinks;
-//                        if (containsTrackIntoDataBase(trackName))
-//                            listOfLinks = getLinksFromDataBase(trackName);
-//                        else listOfLinks = getLinksFromAPI(trackName);
-//
-//                        sendMessage(chatId, createResultMessage(listOfLinks));
+                        List<String> listOfLinks = getLinks(trackName, artistName,
+                                insertGetMethod(trackName, artistName));
+
+                        sendMessage(chatId, createResultMessage(listOfLinks));
                     } catch (TrackNotFoundException e) {
                         sendMessage(chatId, errorMessage);
                         e.printStackTrace();
@@ -106,29 +114,34 @@ public class Bot extends TelegramLongPollingBot {
 
     private String getTrackNameByLink(String validLink, StreamServiceType linkType) throws TrackNotFoundException {
         try {
-            return StreamServiceAPIFactory.get(linkType).getTrackName(validLink);
-        } catch (InvalidStreamServiceAPIException e) {
+            return streamServiceFactory.getMusicService(linkType).getTrackName(validLink);
+        } catch (NoSuchElementException e) {
             throw new TrackNotFoundException(e);
         }
     }
     private String getArtistNameByLink(String validLink, StreamServiceType typeLink) throws TrackNotFoundException {
         try {
-            return StreamServiceAPIFactory.get(typeLink).getArtistName(validLink);
-        } catch (InvalidStreamServiceAPIException e) {
+            return streamServiceFactory.getMusicService(typeLink).getArtistName(validLink);
+        } catch (NoSuchElementException e) {
             throw new TrackNotFoundException(e);
         }
     }
 
-    private boolean containsTrackIntoDataBase(String trackName) {
-        return false;
+    private List<String> getLinks(String trackName, String artistName, GetTrackLinksMethod getMethod) {
+        return switch (getMethod) {
+            case GET_TRACK_LINKS_FROM_DATABASE -> dataBase.getLinks(trackName, artistName);
+            case GET_TRACK_LINKS_FROM_API -> apiManager.getLinks(trackName, artistName);
+        };
     }
 
-    private List<String> getLinksFromDataBase(String trackName) {
-        return null;
-    }
-
-    private List<String> getLinksFromAPI(String trackName) {
-        return null;
+    private GetTrackLinksMethod insertGetMethod(String trackName, String artistName) {
+        try {
+            return dataBase.containsTrack(trackName, artistName) ?
+                    GetTrackLinksMethod.GET_TRACK_LINKS_FROM_DATABASE :
+                    GetTrackLinksMethod.GET_TRACK_LINKS_FROM_API;
+        } catch (TrackNotFoundException e) {
+            return GetTrackLinksMethod.GET_TRACK_LINKS_FROM_API;
+        }
     }
 
     private String createResultMessage(List<String> links) {

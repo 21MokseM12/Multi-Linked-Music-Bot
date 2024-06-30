@@ -1,9 +1,11 @@
 package com.app.services.implementations.api;
 
+import com.app.enums.StreamServiceType;
 import com.app.exceptions.TrackNotFoundException;
 import com.app.services.interfaces.api.MusicStreamServiceAPI;
 import com.app.utils.PropertiesManager;
 import org.apache.hc.core5.http.ParseException;
+import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
@@ -13,6 +15,7 @@ import se.michaelthelin.spotify.requests.authorization.client_credentials.Client
 import java.io.IOException;
 
 //https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB
+@Service
 public class SpotifyMusicStreamServiceAPI implements MusicStreamServiceAPI {
     private static final String CLIENT_ID = "spotify.client.id";
     private static final String CLIENT_SECRET = "spotify.client.secret";
@@ -23,6 +26,11 @@ public class SpotifyMusicStreamServiceAPI implements MusicStreamServiceAPI {
             .build();
     private static final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
             .build();
+
+    @Override
+    public String getLinkByFullTrackName(String trackName, String artistName) {
+        return "";
+    }
 
     @Override
     public String getTrackName(String link) throws TrackNotFoundException{
@@ -64,7 +72,12 @@ public class SpotifyMusicStreamServiceAPI implements MusicStreamServiceAPI {
         }
     }
 
-    public String getTrackId(String link) {
+    @Override
+    public StreamServiceType getServiceType(){
+        return StreamServiceType.SPOTIFY_MUSIC_LINK;
+    }
+
+    private String getTrackId(String link) {
         return link.replace("//", "/")
                 .replace('?', '/')
                 .split("/")[3];

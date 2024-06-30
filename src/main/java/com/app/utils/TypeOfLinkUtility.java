@@ -6,10 +6,10 @@ public final class TypeOfLinkUtility {
     private TypeOfLinkUtility() {}
 
     public static StreamServiceType getTypeOfLink(String link) {
-        String[] splittedLink = link.replace("//", "/").replace("?", "/").split("/");
-        if (splittedLink.length < 2) return StreamServiceType.INVALID_LINK;
+        String[] splitLink = link.replace("//", "/").replace("?", "/").split("/");
+        if (splitLink.length < 2) return StreamServiceType.INVALID_LINK;
 
-        return switch (splittedLink[1]) {
+        return switch (splitLink[1]) {
             case "open.spotify.com" -> StreamServiceType.SPOTIFY_MUSIC_LINK;
             case "music.yandex.ru" -> StreamServiceType.YANDEX_MUSIC_LINK;
             case "music.apple.com" -> StreamServiceType.APPLE_MUSIC_LINK;
