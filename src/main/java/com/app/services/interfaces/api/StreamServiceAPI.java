@@ -7,5 +7,5 @@ public interface StreamServiceAPI {
     String getTrackName(String link) throws TrackNotFoundException;
     String getArtistName(String link) throws TrackNotFoundException;
     StreamServiceType getServiceType();
-    String getLinkByFullTrackName(String trackName, String artistName);
+    String getLinkByFullTrackName(String trackName, String artistName) throws TrackNotFoundException;
 }

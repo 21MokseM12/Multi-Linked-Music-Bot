@@ -1,9 +1,7 @@
 package api;
 
-import com.app.enums.StreamServiceType;
 import com.app.exceptions.StreamServiceAPINotFoundException;
 import com.app.exceptions.TrackNotFoundException;
-import com.app.factories.StreamServiceAPIFactory;
 import com.app.services.implementations.api.SpotifyMusicStreamServiceAPI;
 import com.app.services.interfaces.api.StreamServiceAPI;
 import org.junit.Test;
@@ -27,5 +25,19 @@ public class SpotifyMusicStreamServiceAPITest {
     public void getTrackId() {
         SpotifyMusicStreamServiceAPI spotify = new SpotifyMusicStreamServiceAPI();
         Assertions.assertEquals("3uCth4TIWyeQDnj3YbAVQB", spotify.getTrackId("https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB?=gfkfkfkkfkf"));
+    }
+
+    @Test
+    public void getValidLink() throws TrackNotFoundException {
+        SpotifyMusicStreamServiceAPI spotify = new SpotifyMusicStreamServiceAPI();
+        String link = "https://open.spotify.com/track/3uCth4TIWyeQDnj3YbAVQB";
+        Assertions.assertEquals(link, spotify.getLinkByFullTrackName(spotify.getTrackName(link), spotify.getArtistName(link)));
+    }
+
+    @Test
+    public void getInvalidLink() throws TrackNotFoundException {
+        SpotifyMusicStreamServiceAPI spotify = new SpotifyMusicStreamServiceAPI();
+        String link = "https://open.spotify.com/track/0x60P5taxdI5pcGbqbap6S";
+        Assertions.assertNotEquals("0x60P5taxdI5pcGbqbap6S", spotify.getLinkByFullTrackName(spotify.getTrackName(link), spotify.getArtistName(link)));
     }
 }

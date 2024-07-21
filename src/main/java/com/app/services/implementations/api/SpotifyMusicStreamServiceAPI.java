@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 
@@ -28,8 +29,19 @@ public class SpotifyMusicStreamServiceAPI implements StreamServiceAPI {
             .build();
 
     @Override
-    public String getLinkByFullTrackName(String trackName, String artistName) {
-        return "";
+    public String getLinkByFullTrackName(String trackName, String artistName) throws TrackNotFoundException{
+        try {
+            String accessToken = clientCredentialsRequest.execute().getAccessToken();
+            spotifyApi.setAccessToken(accessToken);
+            Paging<Track> tracks = spotifyApi.searchTracks(trackName).build().execute();
+
+            for (Track track : tracks.getItems())
+                if (buildFullArtistName(track.getArtists()).equals(artistName)) return buildSpotifyLink(track.getId());
+
+            throw new TrackNotFoundException();
+        } catch (SpotifyWebApiException | IOException | ParseException e) {
+            throw new TrackNotFoundException(e);
+        }
     }
 
     @Override
@@ -59,14 +71,11 @@ public class SpotifyMusicStreamServiceAPI implements StreamServiceAPI {
                     .getTrack(getTrackId(link))
                     .build()
                     .execute();
-            StringBuilder artistsName = new StringBuilder();
             ArtistSimplified[] artists = track.getArtists();
 
             if (artists.length == 0) throw new TrackNotFoundException();
-            else {
-                for (ArtistSimplified artist : artists) artistsName.append(artist.getName()).append(", ");
-                return artistsName.delete(artistsName.length()-2, artistsName.length()).toString().trim();
-            }
+            else return buildFullArtistName(artists);
+
         } catch (IOException | SpotifyWebApiException | ParseException | NullPointerException | TrackNotFoundException e) {
             throw new TrackNotFoundException(e);
         }
@@ -83,4 +92,13 @@ public class SpotifyMusicStreamServiceAPI implements StreamServiceAPI {
                 .split("/")[3];
     }
 
+    private String buildFullArtistName(ArtistSimplified[] artists) {
+        StringBuilder res = new StringBuilder();
+        for (ArtistSimplified artist : artists) res.append(artist.getName()).append(", ");
+        return res.delete(res.length()-2, res.length()).toString().trim();
+    }
+
+    private String buildSpotifyLink(String id) {
+        return "https://open.spotify.com/track/".concat(id);
+    }
 }
